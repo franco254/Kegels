@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fitness Trainer">
+    <meta name="description" content="Progressive exercise training app with voice guidance and privacy mode">
+    <title>Fitness Trainer</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            overscroll-behavior: none;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        /* Dark Theme (Default) */
+        body.dark {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #f9fafb;
+        }
+        
+        /* Light Theme */
+        body.light {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            color: #111827;
+        }
+        
+        /* Utility Classes for Dark Mode */
+        .dark .bg-dark { background-color: #1f2937; }
+        .dark .bg-darker { background-color: #111827; }
+        .dark .text-light { color: #f9fafb; }
+        .dark .text-gray { color: #9ca3af; }
+        .dark .border-dark { border-color: #374151; }
+        .dark .card-dark { background-color: #1f2937; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        
+        /* Utility Classes for Light Mode */
+        .light .bg-dark { background-color: #ffffff; }
+        .light .bg-darker { background-color: #f9fafb; }
+        .light .text-light { color: #111827; }
+        .light .text-gray { color: #6b7280; }
+        .light .border-dark { border-color: #e5e7eb; }
+        .light .card-dark { background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* Base Tailwind-like utilities */
+        .flex { display: flex; }
+        .flex-1 { flex: 1; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-around { justify-content: space-around; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .grid { display: grid; }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .m-0 { margin: 0; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .w-full { width: 100%; }
+        .max-w-md { max-width: 28rem; }
+        .min-h-screen { min-height: 100vh; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-3xl { border-radius: 1.5rem; }
+        .rounded-full { border-radius: 9999px; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .text-xs { font-size: 0.65rem; line-height: 1rem; }
+        .text-sm { font-size: 0.75rem; line-height: 1.25rem; }
+        .text-base { font-size: 0.875rem; line-height: 1.5rem; }
+        .text-lg { font-size: 1rem; line-height: 1.75rem; }
+        .text-xl { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-2xl { font-size: 1.25rem; line-height: 2rem; }
+        .text-3xl { font-size: 1.5rem; line-height: 2.25rem; }
+        .text-4xl { font-size: 1.875rem; line-height: 2.5rem; }
+        .font-bold { font-weight: 700; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .cursor-pointer { cursor: pointer; }
+        .transition-all { transition: all 0.3s; }
+        .overflow-hidden { overflow: hidden; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        
+        /* Colors */
+        .bg-purple { background-color: #9333ea; }
+        .bg-purple-dark { background-color: #7e22ce; }
+        .bg-green { background-color: #10b981; }
+        .bg-orange { background-color: #f97316; }
+        .bg-red { background-color: #ef4444; }
+        .bg-yellow { background-color: #fbbf24; }
+        .bg-gray { background-color: #6b7280; }
+        .text-purple { color: #9333ea; }
+        .text-green { color: #10b981; }
+        .text-orange { color: #f97316; }
+        .text-red { color: #ef4444; }
+        .text-white { color: #ffffff; }
+        .border { border-width: 1px; }
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.02); }
+        }
+        .pulse-animation {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        /* Fixed bottom nav */
+        .fixed-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .pb-20 { padding-bottom: 5rem; }
+        
+        /* Toggle switch */
+        .toggle {
+            width: 3.5rem;
+            height: 2rem;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-circle {
+            width: 1.5rem;
+            height: 1.5rem;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 0.25rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-off .toggle-circle { left: 0.25rem; }
+        .toggle-on .toggle-circle { left: 1.75rem; }
+        
+        /* Button styles */
+        button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="dark">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const WORKOUT_TYPES = {
+            quick: { name: "Quick", reps: 5, holdTime: 3, relaxTime: 3, duration: "2min", emoji: "⚡" },
+            standard: { name: "Standard", reps: 10, holdTime: 5, relaxTime: 5, duration: "5min", emoji: "💪" },
+            endurance: { name: "Endurance", reps: 15, holdTime: 7, relaxTime: 4, duration: "8min", emoji: "🔥" },
+            strength: { name: "Strength", reps: 8, holdTime: 10, relaxTime: 6, duration: "7min", emoji: "🏋️" },
+            speed: { name: "Speed", reps: 20, holdTime: 2, relaxTime: 2, duration: "4min", emoji: "💨" },
+        };
+
+        function KegelsApp() {
+            const [phase, setPhase] = useState('ready');
+            const [currentRep, setCurrentRep] = useState(0);
+            const [timeLeft, setTimeLeft] = useState(0);
+            const [isExercising, setIsExercising] = useState(false);
+            const [selectedWorkout, setSelectedWorkout] = useState('standard');
+            const [currentLevel, setCurrentLevel] = useState(1);
+            const [totalXP, setTotalXP] = useState(0);
+            const [completedSessions, setCompletedSessions] = useState(0);
+            const [streak, setStreak] = useState(0);
+            const [lastSessionDate, setLastSessionDate] = useState(null);
+            const [sessionHistory, setSessionHistory] = useState([]);
+            const [voiceEnabled, setVoiceEnabled] = useState(true);
+            const [vibrationEnabled, setVibrationEnabled] = useState(false);
+            const [privacyMode, setPrivacyMode] = useState(false);
+            const [darkMode, setDarkMode] = useState(true);
+            const [currentView, setCurrentView] = useState('exercise');
+            const [sessionsToRun, setSessionsToRun] = useState(1);
+            const [sessionsCompleted, setSessionsCompleted] = useState(0);
+            const audioContext = useRef(null);
+
+            const levels = [
+                { level: 1, name: "Beginner", xpRequired: 0 },
+                { level: 2, name: "Novice", xpRequired: 100 },
+                { level: 3, name: "Intermediate", xpRequired: 250 },
+                { level: 4, name: "Advanced", xpRequired: 500 },
+                { level: 5, name: "Expert", xpRequired: 800 },
+                { level: 6, name: "Master", xpRequired: 1200 },
+                { level: 7, name: "Champion", xpRequired: 1700 }
+            ];
+
+            useEffect(() => {
+                const saved = localStorage.getItem('kegelData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    setCurrentLevel(data.level || 1);
+                    setTotalXP(data.xp || 0);
+                    setCompletedSessions(data.sessions || 0);
+                    setStreak(data.streak || 0);
+                    setLastSessionDate(data.lastSessionDate);
+                    setSessionHistory(data.history || []);
+                    setVoiceEnabled(data.voiceEnabled !== false);
+                    setVibrationEnabled(data.vibrationEnabled || false);
+                    setDarkMode(data.darkMode !== false);
+                }
+                audioContext.current = new (window.AudioContext || window.webkitAudioContext)();
+            }, []);
+
+            useEffect(() => {
+                document.body.className = darkMode ? 'dark' : 'light';
+            }, [darkMode]);
+
+            const saveData = () => {
+                const data = {
+                    level: currentLevel,
+                    xp: totalXP,
+                    sessions: completedSessions,
+                    streak: streak,
+                    lastSessionDate,
+                    history: sessionHistory,
+                    voiceEnabled,
+                    vibrationEnabled,
+                    darkMode
+                };
+                localStorage.setItem('kegelData', JSON.stringify(data));
+            };
+
+            const vibrate = (duration = 200) => {
+                if (vibrationEnabled && 'vibrate' in navigator) {
+                    navigator.vibrate(duration);
+                }
+            };
+
+            const playBeep = (frequency = 800, duration = 0.1) => {
+                if (!audioContext.current) return;
+                const oscillator = audioContext.current.createOscillator();
+                const gainNode = audioContext.current.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.current.destination);
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.current.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.current.currentTime + duration);
+                oscillator.start(audioContext.current.currentTime);
+                oscillator.stop(audioContext.current.currentTime + duration);
+            };
+
+            const speak = (text) => {
+                if (voiceEnabled && !privacyMode && 'speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    speechSynthesis.speak(utterance);
+                }
+            };
+
+            const startExercise = () => {
+                setIsExercising(true);
+                setPhase('hold');
+                setCurrentRep(1);
+                setTimeLeft(WORKOUT_TYPES[selectedWorkout].holdTime);
+                setSessionsCompleted(0);
+                speak('Hold');
+                vibrate(200);
+                playBeep(800);
+            };
+
+            useEffect(() => {
+                if (!isExercising || timeLeft === 0) return;
+                const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+                return () => clearTimeout(timer);
+            }, [isExercising, timeLeft]);
+
+            useEffect(() => {
+                if (timeLeft !== 0 || !isExercising) return;
+                const workout = WORKOUT_TYPES[selectedWorkout];
+                if (phase === 'hold') {
+                    setPhase('relax');
+                    setTimeLeft(workout.relaxTime);
+                    speak('Relax');
+                    vibrate(100);
+                    playBeep(600);
+                } else if (phase === 'relax') {
+                    if (currentRep < workout.reps) {
+                        setCurrentRep(currentRep + 1);
+                        setPhase('hold');
+                        setTimeLeft(workout.holdTime);
+                        speak('Hold');
+                        vibrate(200);
+                        playBeep(800);
+                    } else {
+                        completeSession();
+                    }
+                }
+            }, [timeLeft, phase, isExercising]);
+
+            const completeSession = () => {
+                const sessionsNow = sessionsCompleted + 1;
+                setSessionsCompleted(sessionsNow);
+                
+                if (sessionsNow < sessionsToRun) {
+                    setTimeout(() => {
+                        setPhase('hold');
+                        setCurrentRep(1);
+                        setTimeLeft(WORKOUT_TYPES[selectedWorkout].holdTime);
+                        speak(`Session ${sessionsNow + 1}`);
+                        vibrate(300);
+                    }, 2000);
+                } else {
+                    setIsExercising(false);
+                    setPhase('complete');
+                    const xpEarned = 25 + (currentLevel * 5) * sessionsToRun;
+                    const newXP = totalXP + xpEarned;
+                    setTotalXP(newXP);
+                    const newSessions = completedSessions + sessionsToRun;
+                    setCompletedSessions(newSessions);
+                    const today = new Date().toDateString();
+                    const yesterday = new Date(Date.now() - 86400000).toDateString();
+                    let newStreak = streak;
+                    if (lastSessionDate === yesterday || lastSessionDate === today) {
+                        if (lastSessionDate !== today) newStreak = streak + 1;
+                    } else if (lastSessionDate !== today) {
+                        newStreak = 1;
+                    }
+                    setStreak(newStreak);
+                    setLastSessionDate(today);
+                    const newHistory = [...sessionHistory, {
+                        date: today,
+                        workout: selectedWorkout,
+                        sessions: sessionsToRun,
+                        xp: xpEarned
+                    }].slice(-30);
+                    setSessionHistory(newHistory);
+                    checkLevelUp(newXP);
+                    speak(`Complete! ${xpEarned} XP earned!`);
+                    vibrate([200, 100, 200]);
+                    playBeep(523.25);
+                    setTimeout(() => playBeep(659.25), 100);
+                    setTimeout(() => playBeep(783.99), 200);
+                    saveData();
+                }
+            };
+
+            const checkLevelUp = (xp) => {
+                for (let level of levels) {
+                    if (level.level > currentLevel && xp >= level.xpRequired) {
+                        setCurrentLevel(level.level);
+                        speak(`Level up! ${level.name}!`);
+                        vibrate([300, 100, 300]);
+                    }
+                }
+            };
+
+            const resetExercise = () => {
+                setIsExercising(false);
+                setPhase('ready');
+                setCurrentRep(0);
+                setSessionsCompleted(0);
+            };
+
+            const getCurrentLevelInfo = () => levels.find(l => l.level === currentLevel) || levels[0];
+            const getNextLevelInfo = () => levels.find(l => l.level === currentLevel + 1);
+            const getXPProgress = () => {
+                const currentLevelInfo = getCurrentLevelInfo();
+                const nextLevelInfo = getNextLevelInfo();
+                if (!nextLevelInfo) return 100;
+                const xpInCurrentLevel = totalXP - currentLevelInfo.xpRequired;
+                const xpNeededForNextLevel = nextLevelInfo.xpRequired - currentLevelInfo.xpRequired;
+                return Math.min(100, (xpInCurrentLevel / xpNeededForNextLevel) * 100);
+            };
+
+            const ExerciseView = () => {
+                const workout = WORKOUT_TYPES[selectedWorkout];
+                return (
+                    <div className="p-4 max-w-md mx-auto">
+                        <div className="card-dark rounded-2xl p-3 mb-3">
+                            <div className="flex justify-between items-center mb-2">
+                                <div>
+                                    <div className="text-xs text-gray">Level {currentLevel}</div>
+                                    <div className="text-sm font-bold text-purple">{getCurrentLevelInfo().name}</div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-xl font-bold text-purple">{totalXP} XP</div>
+                                    <div className="text-xs text-gray">
+                                        {getNextLevelInfo() ? `${getNextLevelInfo().xpRequired - totalXP} to next` : "Max!"}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{width: '100%', height: '0.5rem', background: darkMode ? '#374151' : '#e5e7eb', borderRadius: '9999px'}}>
+                                <div style={{width: `${getXPProgress()}%`, height: '100%', background: '#9333ea', borderRadius: '9999px', transition: 'width 0.3s'}}></div>
+                            </div>
+                        </div>
+
+                        <div className="card-dark rounded-2xl p-3 mb-3" style={{background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'}}>
+                            <div className="flex items-center justify-between text-white">
+                                <div>
+                                    <div className="text-2xl font-bold">{streak} 🔥</div>
+                                    <div className="text-xs">Day Streak</div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-xl font-bold">{completedSessions}</div>
+                                    <div className="text-xs">Sessions</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {!isExercising && phase !== 'complete' && (
+                            <div className="card-dark rounded-xl p-3 mb-3">
+                                <div className="text-xs font-bold text-gray mb-2">Choose Workout</div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {Object.keys(WORKOUT_TYPES).map(key => (
+                                        <button
+                                            key={key}
+                                            onClick={() => setSelectedWorkout(key)}
+                                            className={`p-2 rounded-lg text-left transition-all ${selectedWorkout === key ? 'bg-purple text-white' : 'bg-darker text-light'}`}
+                                            style={{fontSize: '0.75rem'}}
+                                        >
+                                            <div className="text-lg mb-1">{WORKOUT_TYPES[key].emoji}</div>
+                                            <div className="font-bold text-xs">{WORKOUT_TYPES[key].name}</div>
+                                            <div className="text-xs opacity-75">{WORKOUT_TYPES[key].duration}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className={`rounded-3xl p-6 mb-3 ${privacyMode && isExercising ? '' : 'card-dark'}`} style={privacyMode && isExercising ? {background: '#000'} : {}}>
+                            {!privacyMode ? (
+                                <>
+                                    <div className="text-center mb-4">
+                                        <div className="text-4xl font-bold text-light">{phase === 'ready' ? workout.reps : currentRep}</div>
+                                        <div className="text-sm text-gray">{phase === 'ready' ? 'reps' : `of ${workout.reps}`}</div>
+                                        {sessionsToRun > 1 && <div className="text-xs text-purple mt-1">Session {sessionsCompleted + 1}/{sessionsToRun}</div>}
+                                    </div>
+                                    <div className={`p-4 rounded-xl mb-4 ${phase === 'ready' ? 'bg-gray' : phase === 'hold' ? 'bg-purple pulse-animation' : phase === 'relax' ? 'bg-green pulse-animation' : 'bg-yellow'}`}>
+                                        <div className="text-center">
+                                            <div className="text-white text-xl font-bold mb-1">
+                                                {phase === 'ready' ? '💪 Ready' : phase === 'hold' ? '💪 HOLD' : phase === 'relax' ? '😌 RELAX' : '🎉 DONE!'}
+                                            </div>
+                                            {timeLeft > 0 && <div className="text-white text-3xl font-bold">{timeLeft}s</div>}
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="text-center py-16">
+                                    <div className="text-white text-lg">🔒 Privacy Mode</div>
+                                    <div style={{color: '#6b7280'}} className="text-xs mt-2">Follow vibration</div>
+                                </div>
+                            )}
+                            <div className="flex gap-2">
+                                {!isExercising && phase !== 'complete' && (
+                                    <button onClick={startExercise} className="flex-1 bg-purple text-white py-3 rounded-full font-bold text-sm">Start</button>
+                                )}
+                                {isExercising && (
+                                    <button onClick={resetExercise} className="flex-1 bg-gray text-white py-3 rounded-full font-bold text-sm">Reset</button>
+                                )}
+                                {phase === 'complete' && (
+                                    <button onClick={resetExercise} className="flex-1 bg-purple text-white py-3 rounded-full font-bold text-sm">New Session</button>
+                                )}
+                            </div>
+                        </div>
+
+                        {!isExercising && phase !== 'complete' && (
+                            <div className="card-dark rounded-xl p-3">
+                                <div className="text-xs font-bold text-gray mb-2">Sessions: {sessionsToRun}</div>
+                                <div className="flex gap-2">
+                                    {[1, 2, 3, 5].map(num => (
+                                        <button
+                                            key={num}
+                                            onClick={() => setSessionsToRun(num)}
+                                            className={`flex-1 py-2 rounded-lg font-bold text-sm ${sessionsToRun === num ? 'bg-purple text-white' : 'bg-darker text-light'}`}
+                                        >
+                                            {num}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            const StatsView = () => (
+                <div className="p-4 max-w-md mx-auto">
+                    <h2 className="text-xl font-bold text-purple mb-3">Progress</h2>
+                    <div className="card-dark rounded-xl p-4 mb-3">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div><div className="text-2xl font-bold text-purple">{completedSessions}</div><div className="text-xs text-gray">Sessions</div></div>
+                            <div><div className="text-2xl font-bold text-orange">{streak} 🔥</div><div className="text-xs text-gray">Streak</div></div>
+                            <div><div className="text-2xl font-bold text-green">{totalXP}</div><div className="text-xs text-gray">Total XP</div></div>
+                            <div><div className="text-2xl font-bold" style={{color: '#3b82f6'}}>{currentLevel}</div><div className="text-xs text-gray">Level</div></div>
+                        </div>
+                    </div>
+                    <div className="card-dark rounded-xl p-4">
+                        <h3 className="text-sm font-bold text-light mb-2">Recent</h3>
+                        {sessionHistory.length === 0 ? (
+                            <div className="text-center text-gray py-6 text-xs">No sessions yet</div>
+                        ) : (
+                            <div className="space-y-2">
+                                {sessionHistory.slice(-7).reverse().map((s, i) => (
+                                    <div key={i} className="flex justify-between items-center p-2 bg-darker rounded-lg">
+                                        <div>
+                                            <div className="text-xs font-bold text-light">{WORKOUT_TYPES[s.workout].name}</div>
+                                            <div className="text-xs text-gray">{s.date}</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-purple font-bold text-xs">+{s.xp} XP</div>
+                                            <div className="text-xs text-gray">{s.sessions}x</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+
+            const SettingsView = () => {
+                const Toggle = ({checked, onChange, label, desc}) => (
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <div className="text-sm font-bold text-light">{label}</div>
+                            <div className="text-xs text-gray">{desc}</div>
+                        </div>
+                        <div 
+                            className={`toggle ${checked ? 'toggle-on bg-purple' : 'toggle-off bg-gray'}`}
+                            onClick={onChange}
+                        >
+                            <div className="toggle-circle"></div>
+                        </div>
+                    </div>
+                );
+
+                return (
+                    <div className="p-4 max-w-md mx-auto">
+                        <h2 className="text-xl font-bold text-purple mb-3">Settings</h2>
+                        <div className="card-dark rounded-xl p-4 space-y-3">
+                            <Toggle checked={darkMode} onChange={() => { setDarkMode(!darkMode); setTimeout(saveData, 100); }} label="🌙 Dark Mode" desc="Dark theme" />
+                            <Toggle checked={voiceEnabled} onChange={() => { setVoiceEnabled(!voiceEnabled); saveData(); }} label="🔊 Voice" desc="Speaks Hold/Relax" />
+                            <Toggle checked={vibrationEnabled} onChange={() => { setVibrationEnabled(!vibrationEnabled); saveData(); }} label="📳 Vibration" desc="Phone vibrates" />
+                            <Toggle checked={privacyMode} onChange={() => { setPrivacyMode(!privacyMode); saveData(); }} label="🔒 Privacy" desc="Black screen" />
+                        </div>
+                        <div className="card-dark rounded-xl p-4 mt-3">
+                            <h3 className="text-sm font-bold text-light mb-2">Data</h3>
+                            <button
+                                onClick={() => {
+                                    if (confirm('Reset all progress?')) {
+                                        localStorage.removeItem('kegelData');
+                                        window.location.reload();
+                                    }
+                                }}
+                                className="w-full py-2 rounded-lg font-bold text-sm text-white"
+                                style={{background: '#ef4444'}}
+                            >
+                                Reset All
+                            </button>
+                        </div>
+                    </div>
+                );
+            };
+
+            const GuideView = () => (
+                <div className="p-4 max-w-md mx-auto">
+                    <h2 className="text-xl font-bold text-purple mb-3">Guide</h2>
+                    <div className="card-dark rounded-xl p-4 space-y-3">
+                        <div><div className="text-sm font-bold text-light mb-1">🎯 Finding Muscles</div><p className="text-xs text-gray">Imagine stopping urination midstream. Those are your pelvic floor muscles.</p></div>
+                        <div><div className="text-sm font-bold text-light mb-1">💪 How to Hold</div><p className="text-xs text-gray">Tighten and lift. Don't hold your breath. Keep stomach and legs relaxed.</p></div>
+                        <div><div className="text-sm font-bold text-light mb-1">😌 How to Relax</div><p className="text-xs text-gray">Fully release. Rest completely before next hold.</p></div>
+                        <div><div className="text-sm font-bold text-light mb-1">📅 Best Practices</div><p className="text-xs text-gray">• 2-3 times daily<br/>• Same times each day<br/>• Results in 4-6 weeks<br/>• Empty bladder first</p></div>
+                    </div>
+                </div>
+            );
+
+            const Navigation = () => (
+                <div className="fixed-bottom card-dark" style={{borderTop: darkMode ? '1px solid #374151' : '1px solid #e5e7eb'}}>
+                    <div className="flex justify-around max-w-md mx-auto">
+                        {[
+                            {view: 'exercise', icon: '💪', label: 'Exercise'},
+                            {view: 'stats', icon: '📊', label: 'Stats'},
+                            {view: 'guide', icon: '📖', label: 'Guide'},
+                            {view: 'settings', icon: '⚙️', label: 'Settings'}
+                        ].map(({view, icon, label}) => (
+                            <button
+                                key={view}
+                                onClick={() => setCurrentView(view)}
+                                className={`flex-1 py-3 ${currentView === view ? 'text-purple' : 'text-gray'}`}
+                                style={{background: 'transparent'}}
+                            >
+                                <div className="text-xl">{icon}</div>
+                                <div className="text-xs font-bold">{label}</div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen pb-20">
+                    {currentView === 'exercise' && <ExerciseView />}
+                    {currentView === 'stats' && <StatsView />}
+                    {currentView === 'settings' && <SettingsView />}
+                    {currentView === 'guide' && <GuideView />}
+                    <Navigation />
+                </div>
+            );
+        }
+
+        ReactDOM.render(<KegelsApp />, document.getElementById('root'));
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('✅ SW registered'))
+                    .catch(err => console.log('❌ SW failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
